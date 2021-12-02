@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.R
@@ -106,11 +109,21 @@ class PlantDetailFragment : Fragment() {
                     else -> false
                 }
             }
+
+            composeView.apply {
+                // View의 LifecycleOwner가 파괴될 때 컴포지션을 폐기 한다.
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    MdcTheme {
+                        PlantDetailDescription(plantDetailViewModel)
+                    }
+                }
+            }
         }
         setHasOptionsMenu(true)
 
         return binding.root
-    }
+    } // onCreateView
 
     // Helper function for calling a share functionality.
     // Should be used when user presses a share button/menu item.
@@ -129,7 +142,7 @@ class PlantDetailFragment : Fragment() {
             .createChooserIntent()
             .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         startActivity(shareIntent)
-    }
+    } // createShareIntent
 
     // FloatingActionButtons anchored to AppBarLayouts have their visibility controlled by the scroll position.
     // We want to turn this behavior off to hide the FAB when it is clicked.
@@ -140,7 +153,7 @@ class PlantDetailFragment : Fragment() {
         val behavior = params.behavior as FloatingActionButton.Behavior
         behavior.isAutoHideEnabled = false
         fab.hide()
-    }
+    } // hideAppBarFab
 
     interface Callback {
         fun add(plant: Plant?)
